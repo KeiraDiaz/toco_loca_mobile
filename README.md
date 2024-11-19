@@ -3,7 +3,7 @@
 Your favorite website for local shoping has turned into a new app, with a new twist 🐠🍹🌴
 
 <details>
-<summary> Assignment 1 </summary>
+<summary> Assignment 7 </summary>
   
 ### 1. Explain what are stateless widgets and stateful widgets, and explain the difference between them.
 **Stateless Widgets**:
@@ -189,7 +189,7 @@ Sure! Here’s a simplified summary of the project reorganization and widget cre
 </details>
 
 <details>
-<summary> Assignment 2 </summary>
+<summary> Assignment 8 </summary>
 
 ### 1. **Purpose and Advantages of `const` in Flutter**
    In Flutter, `const` is used to indicate that a value is compile-time constant, meaning it does not change. Using `const` has several benefits:
@@ -335,4 +335,135 @@ Sure! Here’s a simplified summary of the project reorganization and widget cre
    - **Navigation with Libraries**: For complex navigation scenarios, libraries like `go_router` or `auto_route` are often used to simplify and streamline routing.
 
    Managing navigation well enhances the user experience and makes the app flow more intuitive, especially when handling back navigation and transitions between related screens.
+</details>
+
+<details>
+<summary> Assignment 9 </summary>
+
+### 1. **Why do we need to create a model to retrieve or send JSON data? Will an error occur if we don’t create a model first?**
+
+A **model** for JSON data simplifies data parsing and ensures data consistency. Here's why it's important:
+
+- **Type Safety**: A model defines the expected structure and types of data, helping avoid runtime errors caused by unexpected or incorrect data.
+- **Ease of Use**: Using models allows you to work with structured data (e.g., objects) instead of raw JSON, making your code easier to read and maintain.
+- **Validation**: A model can include validation rules to ensure data integrity before sending or after receiving it.
+  
+If you don’t create a model:
+- **Errors won’t necessarily occur**, but you’ll have to work with raw JSON, which is error-prone and less maintainable.
+- **Parsing and validation** will have to be done manually, increasing the likelihood of bugs and making code harder to manage.
+
+### 2. **Function of the HTTP library in this task**
+
+The **HTTP library** in Flutter is used for making network requests. Key functionalities include:
+- **GET Requests**: Retrieve data from a server.
+- **POST Requests**: Send data to a server (e.g., for creating or updating resources).
+- **Header Management**: Add authentication tokens or content-type headers.
+- **Response Handling**: Parse server responses, such as JSON payloads, for use in the application.
+
+For this task, the HTTP library facilitates communication between the Flutter app and the backend API.
+
+---
+
+### 3. **Function of `CookieRequest`**
+
+`CookieRequest` is used to handle session-based authentication in Flutter. Its primary functions are:
+- **Maintaining Session State**: It stores cookies (e.g., session ID) sent by the server, allowing the app to stay logged in across multiple requests.
+- **Automatic Cookie Management**: It automatically attaches the stored cookies to subsequent requests, ensuring authenticated requests.
+- **Centralized Access**: Sharing the `CookieRequest` instance with all components ensures that all parts of the app share the same session state.
+
+This shared instance is necessary to provide a consistent user experience and manage session persistence across the app.
+
+---
+
+### 4. **Mechanism of Data Transmission (Input to Display)**
+
+1. **Input in Flutter**: User inputs data via forms or other widgets.
+2. **Data Conversion**: Data is converted into a JSON format or query parameters to send to the server.
+3. **HTTP Request**: The Flutter app sends the data (e.g., using `http.post`) to the backend.
+4. **Backend Processing**: The server processes the request (e.g., validates input, performs CRUD operations on the database).
+5. **Response from Backend**: The server sends a response in JSON format containing the required data.
+6. **Data Parsing**: The Flutter app receives the response and parses it (often using models).
+7. **UI Update**: The parsed data is displayed in widgets like `ListView` or `Text`.
+
+---
+
+### 5. **Authentication Mechanism**
+
+#### **Login**
+1. **Input**: User enters username and password in Flutter.
+2. **Request**: Flutter sends a POST request with the credentials to the Django backend (e.g., `/login/` endpoint).
+3. **Validation**: Django validates the credentials:
+   - If valid, it creates a session and returns session cookies or a token.
+   - If invalid, it returns an error response.
+4. **Response**: Flutter saves the session data (e.g., in `CookieRequest` or a token store) and navigates to the menu screen.
+
+#### **Register**
+1. **Input**: User enters registration details (e.g., name, email, password).
+2. **Request**: Flutter sends a POST request to Django’s registration endpoint (e.g., `/register/`).
+3. **Backend**: Django:
+   - Validates the input.
+   - Creates a new user in the database.
+   - Optionally logs the user in or sends a confirmation response.
+4. **Response**: Flutter receives the response and either logs the user in or displays success.
+
+#### **Logout**
+1. **Request**: Flutter sends a request to Django’s logout endpoint (e.g., `/logout/`).
+2. **Backend**: Django clears the session or invalidates the token.
+3. **Response**: Flutter removes the session or token data and navigates to the login screen.
+
+#### **Display of Menu**
+1. **Session Validation**: On navigating to the menu, Flutter checks session validity (e.g., using `CookieRequest`).
+2. **Data Fetching**: Flutter fetches menu data (e.g., user details or items) from Django.
+3. **Response Handling**: Data is parsed and displayed using Flutter widgets.
+
+This flow ensures secure authentication and seamless user experience.
+
+### Implementation of the Checklist Step by Step
+
+1. **Deploying the Django Project on Localhost**
+   - Set up a Django project and configure it with a PostgreSQL or SQLite database.
+   - Create required models, views, and APIs for authentication and item management.
+   - Use Django REST Framework (DRF) to create JSON endpoints for items.
+   - Run the Django development server on localhost to ensure smooth functionality.
+
+2. **Implementing the Registration Feature in Flutter**
+   - Create a registration page using `TextField` widgets for user input (e.g., username, email, and password).
+   - Add a submit button that triggers an HTTP POST request to the Django `/register/` endpoint.
+   - Parse the server response to provide feedback (success or failure) to the user.
+
+3. **Creating a Login Page in Flutter**
+   - Build a login page with input fields for username and password.
+   - Use the HTTP library to send a POST request to Django’s `/login/` endpoint.
+   - If login is successful, store the session data or token using `CookieRequest`.
+
+4. **Integrating Django Authentication with Flutter**
+   - Use `CookieRequest` in Flutter to store cookies or tokens received from Django.
+   - Ensure the session or token is attached to all requests requiring authentication (e.g., fetching user-specific items).
+   - Implement session validation logic in Flutter to handle scenarios like expired sessions.
+
+5. **Creating a Custom Model in Django**
+   - Define a model in Django for items with attributes like `name`, `price`, `description`, and `user` (ForeignKey to the `User` model).
+   - Migrate the model to the database using `python manage.py makemigrations` and `python manage.py migrate`.
+
+6. **Creating the Item List Page in Flutter**
+   - Use `FutureBuilder` to fetch JSON data from Django's `/items/` endpoint.
+   - Parse the JSON response into a custom Dart model.
+   - Display the list using `ListView.builder`, showing the name, price, and description for each item.
+
+7. **Creating a Detail Page for Items**
+   - Add navigation to the detail page when a user taps an item on the list.
+   - Pass the selected item's data to the detail page using `Navigator.push`.
+   - Display all item attributes on this page using widgets like `Text` and `Column`.
+   - Include a button to navigate back to the list page.
+
+8. **Filtering the Item List for the Logged-in User**
+   - Modify the Django endpoint to return only items associated with the currently authenticated user.
+   - On the Flutter side, ensure the authentication token or session is included in the request headers for this endpoint.
+
+9. **README Documentation**
+   - Write a detailed README explaining:
+     - Each step in implementing the checklist.
+     - Any challenges faced and solutions.
+     - The structure of the Django and Flutter projects, including API endpoints and models.
+     - Answers to the provided questions with clear subheadings.
 </details>

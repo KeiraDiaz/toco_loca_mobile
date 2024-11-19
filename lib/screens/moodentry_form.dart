@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:toco_loca/screens/menu.dart';
+import 'dart:convert';
+
 import 'package:toco_loca/widgets/left_drawer.dart';
 
 class MoodEntryFormPage extends StatefulWidget {
@@ -10,27 +15,31 @@ class MoodEntryFormPage extends StatefulWidget {
 
 class _MoodEntryFormPageState extends State<MoodEntryFormPage> {
   final _formKey = GlobalKey<FormState>();
-  String _name = "";
-  String _description = "";
+  String _name = '';
+  String _desc = '';
   int _price = 0;
+
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
-        appBar: AppBar(
-          title: const Center(
-            child: Text(
-              'Add Your Items',
-            ),
+      appBar: AppBar(
+        title: const Center(
+          child: Text(
+            'Add Your Name Today',
           ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
         ),
-        drawer: const LeftDrawer(),
-        body: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+      ),
+      drawer: const LeftDrawer(),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
@@ -48,7 +57,7 @@ class _MoodEntryFormPageState extends State<MoodEntryFormPage> {
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Name cannot be empty!";
+                      return "Name can't be empty!";
                     }
                     return null;
                   },
@@ -66,12 +75,12 @@ class _MoodEntryFormPageState extends State<MoodEntryFormPage> {
                   ),
                   onChanged: (String? value) {
                     setState(() {
-                      _description = value!;
+                      _desc = value!;
                     });
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Description cannot be empty!";
+                      return "Description can't be empty!";
                     }
                     return null;
                   },
@@ -94,10 +103,10 @@ class _MoodEntryFormPageState extends State<MoodEntryFormPage> {
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Price cannot be empty!";
+                      return "Price can't be empty!";
                     }
                     if (int.tryParse(value) == null) {
-                      return "Price must be a number!";
+                      return "Price has to be a number!";
                     }
                     return null;
                   },
@@ -109,39 +118,41 @@ class _MoodEntryFormPageState extends State<MoodEntryFormPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(
+                      backgroundColor: MaterialStateProperty.all(
                           Theme.of(context).colorScheme.primary),
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Item successfully saved'),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Name: $_name'),
-                                    Text('Price: $_price'),
-                                    Text('Description: $_description'),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-                                  },
-                                ),
-                              ],
+                    onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                            // Send request to Django and wait for the response
+                            // TODO: Change the URL to your Django app's URL. Don't forget to add the trailing slash (/) if needed.
+                            final response = await request.postJson(
+                                "http://localhost:8000/create-flutter/",
+                                jsonEncode(<String, String>{
+                                    'name': _name,
+                                    'price': _price.toString(),
+                                    'desc': _desc,
+                                // TODO: Adjust the fields with your project
+                                }),
                             );
-                          },
-                        );
-                      }
+                            if (context.mounted) {
+                                if (response['status'] == 'success') {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                    content: Text("New item has saved successfully!"),
+                                    ));
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => MyHomePage()),
+                                    );
+                                } else {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                        content:
+                                            Text("Something went wrong, please try again."),
+                                    ));
+                                }
+                            }
+                        }
                     },
                     child: const Text(
                       "Save",
@@ -150,8 +161,10 @@ class _MoodEntryFormPageState extends State<MoodEntryFormPage> {
                   ),
                 ),
               ),
-            ]),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

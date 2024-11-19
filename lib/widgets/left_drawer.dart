@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:toco_loca/screens/list_moodentry.dart';
 import 'package:toco_loca/screens/menu.dart';
 import 'package:toco_loca/screens/moodentry_form.dart';
-
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
@@ -17,7 +17,7 @@ class LeftDrawer extends StatelessWidget {
             child: const Column(
               children: [
                 Text(
-                  'Toco Loca: Your Local Toco',
+                  'Toca Loca',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 24,
@@ -27,11 +27,10 @@ class LeftDrawer extends StatelessWidget {
                 ),
                 Padding(padding: EdgeInsets.all(8)),
                 Text(
-                  "Shop your favorite locally made items here!",
+                  "Shop for your favorite local items!",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.normal,
                     color: Colors.white,
                   ),
                 ),
@@ -40,8 +39,8 @@ class LeftDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.home_outlined),
-            title: const Text('Home Page'),
-            // Redirection part to MyHomePage
+            title: const Text('Home'),
+            // Bagian redirection ke MyHomePage
             onTap: () {
               Navigator.pushReplacement(
                   context,
@@ -51,9 +50,9 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.mood),
+            leading: const Icon(Icons.shopping_bag),
             title: const Text('Add Item'),
-            // Redirection part to MoodEntryFormPage
+            // Bagian redirection ke MoodEntryFormPage
             onTap: () {
               Navigator.pushReplacement(
                   context,
@@ -61,6 +60,18 @@ class LeftDrawer extends StatelessWidget {
                     builder: (context) => MoodEntryFormPage(),
                   ));
             },
+          ),
+          // ListTile Menu code
+          ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: const Text('Item List'),
+              onTap: () {
+                  // Route to the mood page
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MoodEntryPage()),
+                  );
+              },
           ),
         ],
       ),

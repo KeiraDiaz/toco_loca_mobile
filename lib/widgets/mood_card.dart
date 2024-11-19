@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:toco_loca/screens/list_moodentry.dart';
+import 'package:toco_loca/screens/login.dart';
 import 'package:toco_loca/screens/moodentry_form.dart';
+
 
 class ItemHomepage {
   final String name;
   final IconData icon;
   final Color color;
 
-  ItemHomepage(this.name, this.icon, this.color);
+
+  ItemHomepage(this.name, this.icon, this.color); 
 }
 
 class ItemCard extends StatelessWidget {
@@ -16,23 +22,56 @@ class ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Material(
-      // Use the color specified in ItemHomepage.
       color: item.color,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        onTap: () {
+        // Area responsif terhadap sentuhan
+        onTap: () async {
+          // Memunculkan SnackBar ketika diklik
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(
-              content: Text("You pressed the ${item.name} button!"),
-            ));
+                content: Text("You have pressed the ${item.name} button!")));
 
+          // Navigate ke route yang sesuai (tergantung jenis tombol)
           if (item.name == "Add Item") {
+            // Gunakan Navigator.push untuk melakukan navigasi ke MaterialPageRoute yang mencakup TrackerFormPage.
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => MoodEntryFormPage()),
+              MaterialPageRoute(
+                builder: (context) => const MoodEntryFormPage(),
+              ),
             );
+          } else if (item.name == "View Item") {
+            Navigator.push(context,
+              MaterialPageRoute(builder: (context) => MoodEntryPage()),
+            );
+          } else if (item.name == "Logout") {
+                final response = await request.logout(
+                    // Change the URL to your Django app's URL. Don't forget to add the trailing slash (/) if needed.
+                    "http://localhost:8000/auth/logout/");
+                String message = response["message"];
+                if (context.mounted) {
+                    if (response['status']) {
+                        String uname = response["username"];
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("$message Goodbye, $uname."),
+                        ));
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const LoginPage()),
+                        );
+                    } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(message),
+                            ),
+                        );
+                    }
+                }
           }
         },
         child: Container(
